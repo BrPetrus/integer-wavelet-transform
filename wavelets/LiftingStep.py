@@ -39,6 +39,7 @@ class LSStep:
                 if order >= 0:
                     predict += self.coefficients[i] * np.pad(approx[order:], (0, order))
                 else:
+                    # TODO: bug if the signal is shorter than order
                     predict += self.coefficients[i] * np.pad(approx[:order], (-1*order, 0))
 
             diff += np.floor(predict + 0.5).astype(int) * c
