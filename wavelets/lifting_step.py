@@ -28,7 +28,7 @@ class LSStep:
 
         # TODO: Duplication
         if self.ls_type == LSType.PREDICT:
-            predict = 0
+            predict = np.zeros_like(approx, dtype=float)
             for i in reversed(range(len(self.coefficients))):
                 order = self.max_order - (len(self.coefficients)-i-1)
                 print("predict")
@@ -37,14 +37,16 @@ class LSStep:
                 print(f"[D] coefficient {self.coefficients[i]}")
 
                 if order >= 0:
+                    #if order < len(self.coefficients):
                     predict += self.coefficients[i] * np.pad(approx[order:], (0, order))
                 else:
                     # TODO: bug if the signal is shorter than order
-                    predict += self.coefficients[i] * np.pad(approx[:order], (-1*order, 0))
+                    if order < len(self.coefficients):
+                        predict += self.coefficients[i] * np.pad(approx[:order], (-1*order, 0))
 
             diff += np.floor(predict + 0.5).astype(int) * c
         elif self.ls_type == LSType.UPDATE:
-            update = 0
+            update = np.zeros_like(approx, dtype=float)
             for i in reversed(range(len(self.coefficients))):
                 order = self.max_order - (len(self.coefficients)-i-1)
                 print("update")
@@ -52,9 +54,11 @@ class LSStep:
                 print(f"[D] order {order}")
                 print(f"[D] coefficient {self.coefficients[i]}")
                 if order >= 0:
+                    #if order < len(self.coefficients):
                     update += self.coefficients[i] * np.pad(diff[order:], (0, order))
                 else:
-                    update += self.coefficients[i] * np.pad(diff[:order],(-1*order, 0))
+                    if order < len(self.coefficients):
+                        update += self.coefficients[i] * np.pad(diff[:order],(-1*order, 0))
             approx += np.floor(update + 0.5).astype(int) * c
         return approx, diff
 
