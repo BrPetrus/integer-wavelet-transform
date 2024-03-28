@@ -22,45 +22,31 @@ class LSStep:
         self.boundary_condition = boundary_condition
 
     def evaluate(self, approx: NDArray[int], diff: NDArray[int], inverse:bool = False) -> NDArray[int]:
+        approx = approx.copy()
+        diff = diff.copy()
         n = approx.shape[0]
-        padding = len(self.coefficients)
         c = -1 if inverse else 1
+        num_c = len(self.coefficients)
 
-        # TODO: Duplication
+        change = 0
+        for i in reversed(range(num_c)):
+            order = self.max_order - (num_c-i-1)
+
+            padding = abs(self.max_order) + num_c +2
+            extract_from = approx if self.ls_type == LSType.PREDICT else diff
+            extract_from = np.pad(extract_from, (padding, padding))
+
+            extract_from = np.roll(extract_from, -1 * order)
+            extract = extract_from[padding:padding+n]
+
+            change += extract*self.coefficients[i]
+
         if self.ls_type == LSType.PREDICT:
-            predict = np.zeros_like(approx, dtype=float)
-            for i in reversed(range(len(self.coefficients))):
-                order = self.max_order - (len(self.coefficients)-i-1)
-                print("predict")
-                print("-------")
-                print(f"[D] order {order}")
-                print(f"[D] coefficient {self.coefficients[i]}")
-
-                if order >= 0:
-                    #if order < len(self.coefficients):
-                    predict += self.coefficients[i] * np.pad(approx[order:], (0, order))
-                else:
-                    # TODO: bug if the signal is shorter than order
-                    if order < len(self.coefficients):
-                        predict += self.coefficients[i] * np.pad(approx[:order], (-1*order, 0))
-
-            diff += np.floor(predict + 0.5).astype(int) * c
-        elif self.ls_type == LSType.UPDATE:
-            update = np.zeros_like(approx, dtype=float)
-            for i in reversed(range(len(self.coefficients))):
-                order = self.max_order - (len(self.coefficients)-i-1)
-                print("update")
-                print("-------")
-                print(f"[D] order {order}")
-                print(f"[D] coefficient {self.coefficients[i]}")
-                if order >= 0:
-                    #if order < len(self.coefficients):
-                    update += self.coefficients[i] * np.pad(diff[order:], (0, order))
-                else:
-                    if order < len(self.coefficients):
-                        update += self.coefficients[i] * np.pad(diff[:order],(-1*order, 0))
-            approx += np.floor(update + 0.5).astype(int) * c
+            approx, diff = approx, diff + np.floor(change+0.5).astype(int)*c
+        else:
+            approx, diff = approx + np.floor(change+0.5).astype(int)*c, diff
         return approx, diff
+
 
 
 Wavelet = List[LSStep]

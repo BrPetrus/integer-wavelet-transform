@@ -8,6 +8,7 @@ from wavelets.db import *
 from wavelets import *
 
 def db2_ls_single(array: NDArray[int]) -> Any:
+    # TODO: remove later
     # Divide
     f_even = array[::2]
     f_odd = array[1::2]
