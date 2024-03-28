@@ -35,5 +35,3 @@ def wt_2d(signal: NDArray[int], lifting_scheme: Wavelet) -> NDArray[int]:
     signal = signal.T
     for col in range(col):
         signal[col] = wt_1d(signal[col], lifting_scheme)
-
-

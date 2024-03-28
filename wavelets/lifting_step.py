@@ -21,7 +21,7 @@ class LSStep:
         self.max_order = max_order
         self.boundary_condition = boundary_condition
 
-    def evaluate(self, approx: NDArray[int], diff: NDArray[int], inverse:bool = False) -> NDArray[int]:
+    def evaluate(self, approx: NDArray[int], diff: NDArray[int], inverse: bool = False) -> NDArray[int]:
         approx = approx.copy()
         diff = diff.copy()
         n = approx.shape[0]
@@ -32,7 +32,7 @@ class LSStep:
         for i in reversed(range(num_c)):
             order = self.max_order - (num_c-i-1)
 
-            padding = abs(self.max_order) + num_c +2
+            padding = abs(self.max_order) + num_c + 2
             extract_from = approx if self.ls_type == LSType.PREDICT else diff
             extract_from = np.pad(extract_from, (padding, padding))
 
@@ -46,7 +46,6 @@ class LSStep:
         else:
             approx, diff = approx + np.floor(change+0.5).astype(int)*c, diff
         return approx, diff
-
 
 
 Wavelet = List[LSStep]

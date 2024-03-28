@@ -21,7 +21,7 @@ def _get_quadrant_bounds(r0, c0, shape):
 
 
 def lifting_scheme(img: NDArray[np.int32]) -> tuple[
-    NDArray[np.int32], int, list[tuple[int, int, int, int]]]:
+        NDArray[np.int32], int, list[tuple[int, int, int, int]]]:
     """
     Run the integral discrete wavelet Haar transform on an image.
 
