@@ -1,50 +1,38 @@
-from wavelets.lifting_step import Wavelet, LSStep,  LSType, LSBoundaryCondition
 import numpy as np
+
+from wavelets.lifting_step import Wavelet, LSStep, LSType
 
 
 # TODO: Remove boundary condition from the wavelets
-def db2_wavelet(inverse: bool = False) -> Wavelet:
+def db2_wavelet() -> Wavelet:
     return [
-        LSStep(LSType.PREDICT, [-1.7321], 0, LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.UPDATE, [0.433, -0.067], 1,
-               LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.PREDICT, [1], -1, LSBoundaryCondition.ZERO_PADDING),
+        LSStep(LSType.PREDICT, [-1.7321], 0),
+        LSStep(LSType.UPDATE, [0.433, -0.067], 1),
+        LSStep(LSType.PREDICT, [1], -1),
     ]
 
 
 def db4_wavelet() -> Wavelet:
     return [
-        LSStep(LSType.PREDICT, [-0.3223], 1, LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.UPDATE, [-0.3001, -1.1171],
-               0, LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.PREDICT, [0.1176, -0.0188],
-               2, LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.UPDATE, [0.6364, 2.1318], 0,
-               LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.PREDICT, [-0.0248, 0.1400, -0.4691],
-               0, LSBoundaryCondition.ZERO_PADDING),
+        LSStep(LSType.PREDICT, [-0.3223], 1),
+        LSStep(LSType.UPDATE, [-0.3001, -1.1171],0),
+        LSStep(LSType.PREDICT, [0.1176, -0.0188],2),
+        LSStep(LSType.UPDATE, [0.6364, 2.1318], 0),
+        LSStep(LSType.PREDICT, [-0.0248, 0.1400, -0.4691],0),
     ]
 
 
 def db8_wavelet() -> Wavelet:
     return [
-        LSStep(LSType.PREDICT, [-5.7496], 0, LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.UPDATE, [0.1688, -0.0523], 1,
-               LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.PREDICT, [-7.4021, 14.5428], -
-               1, LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.UPDATE, [0.0609, -0.0324], 3,
-               LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.PREDICT, [-2.7557, 5.8187], -
-               3, LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.UPDATE, [0.2420, 0.9453], 5,
-               LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.PREDICT,  [-0.0018, 1.8884e-04], -3,
-               LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.UPDATE, [-0.2241, -0.9526], 5,
-               LSBoundaryCondition.ZERO_PADDING),
-        LSStep(LSType.PREDICT, [0.0272, -0.2470, 1.0497], -5,
-               LSBoundaryCondition.ZERO_PADDING),
+        LSStep(LSType.PREDICT, [-5.7496], 0),
+        LSStep(LSType.UPDATE, [0.1688, -0.0523], 1),
+        LSStep(LSType.PREDICT, [-7.4021, 14.5428], -1),
+        LSStep(LSType.UPDATE, [0.0609, -0.0324], 3),
+        LSStep(LSType.PREDICT, [-2.7557, 5.8187], -3),
+        LSStep(LSType.UPDATE, [0.2420, 0.9453], 5),
+        LSStep(LSType.PREDICT, [-0.0018, 1.8884e-04], -3),
+        LSStep(LSType.UPDATE, [-0.2241, -0.9526], 5),
+        LSStep(LSType.PREDICT, [0.0272, -0.2470, 1.0497], -5),
     ]
 
 
