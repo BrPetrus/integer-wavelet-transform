@@ -1,10 +1,8 @@
 from wavelets.lifting_step import Wavelet, LSStep,  LSType, LSBoundaryCondition
-from numpy.typing import NDArray
-from typing import Any
-import matplotlib.pyplot as plt
 import numpy as np
 
 
+# TODO: Remove boundary condition from the wavelets
 def db2_wavelet(inverse: bool = False) -> Wavelet:
     return [
         LSStep(LSType.PREDICT, [-1.7321], 0, LSBoundaryCondition.ZERO_PADDING),

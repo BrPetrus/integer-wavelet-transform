@@ -4,7 +4,7 @@ from .lifting_step import Wavelet
 
 
 def wt_1d(signal: NDArray[int], lifting_scheme: Wavelet) -> NDArray[int]:
-    approx, diff = signal[::2], signal[1::2]
+    approx, diff = signal[::2].copy(), signal[1::2].copy()
     for step in lifting_scheme:
         approx, diff = step.evaluate(approx, diff)
         print(approx, diff)
@@ -15,7 +15,7 @@ def wt_1d(signal: NDArray[int], lifting_scheme: Wavelet) -> NDArray[int]:
 
 
 def inv_wt_1d(signal: NDArray[int], lifting_scheme: Wavelet) -> NDArray[int]:
-    approx, diff = signal[::2], signal[1::2]
+    approx, diff = signal[::2].copy(), signal[1::2].copy()
     for step in reversed(lifting_scheme):
         approx, diff = step.evaluate(approx, diff, inverse=True)
     result = np.zeros_like(signal)
@@ -25,7 +25,6 @@ def inv_wt_1d(signal: NDArray[int], lifting_scheme: Wavelet) -> NDArray[int]:
 
 
 def wt_2d(signal: NDArray[int], lifting_scheme: Wavelet) -> NDArray[int]:
-    raise NotImplementedError
     rows, col = signal.shape
 
     result = np.zeros_like(signal)
@@ -35,3 +34,5 @@ def wt_2d(signal: NDArray[int], lifting_scheme: Wavelet) -> NDArray[int]:
     signal = signal.T
     for col in range(col):
         signal[col] = wt_1d(signal[col], lifting_scheme)
+
+    return signal
