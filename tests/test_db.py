@@ -1,6 +1,9 @@
 from wavelets.db import *
 from wavelets import *
 from typing import Any
+import pytest
+from PIL import Image
+
 
 def db2_ls_single(array: NDArray[int]) -> Any:
     # TODO: remove later
@@ -40,77 +43,102 @@ def db4_ls_single(array: NDArray[int]) -> Any:
 
 
 def test_db2_cmp() -> None:
-    array = np.array([5, 2, 3, 4, 5, 6, 7, 8, 10, 12, 1, 2, 3, 4, 5, 6])
+    array = np.array([5, 2, 3, 4, 5, 6, 7, 8, 10, 12, 1, 2, 3, 4, 5, 6], dtype=np.int32)
 
     print("old")
     result = np.zeros_like(array)
-    result[::2], result[1::2] = db2_ls_single(array)
+    cols = result.shape[-1]
+    result[:cols // 2], result[cols // 2:] = db2_ls_single(array)
     print("---")
 
     assert np.all(result == wt_1d(array, db2_wavelet()))
 
 
 def test_db2_short_4() -> None:
-    array = np.array([1,2,3,4])
+    array = np.array([1,2,3,4], dtype=np.int32)
     result = wt_1d(array, db2_wavelet())
-    assert np.all(result == np.array([1, 0, 3, 0]))
+    assert np.all(result == np.array([1, 3, 0, 0]))
 
 
 def test_db2_short_2() -> None:
-    array = np.array([1,2])
+    array = np.array([1,2], dtype=np.int32)
     result = wt_1d(array, db2_wavelet())
     assert np.all(result == np.array([1, 0]))
 
 
 def test_db2_inv() -> None:
-    array = np.array([5, 2, 3, 4, 5, 6, 7, 8, 10, 12, 1, 2, 3, 4, 5, 6])
+    array = np.array([5, 2, 3, 4, 5, 6, 7, 8, 10, 12, 1, 2, 3, 4, 5, 6], dtype=np.int32)
 
     transformed = wt_1d(array.copy(), db2_wavelet()).copy()
 
-    approx, diff = transformed[::2], transformed[1::2]
+    cols = transformed.shape[-1]
+    approx, diff = transformed[:cols // 2], transformed[cols // 2:]
 
     assert np.all(approx == np.array([2, 3, 4, 6, 8, 1, 3, 4]))
     assert np.all(diff == np.array([-7, 1, 0, 0, 1, 8, 0, 0]))
 
-    result = inv_wt_1d(transformed.copy(), db2_wavelet())
+    result = wt_1d_inv(transformed.copy(), db2_wavelet())
 
     assert np.all(result == array)
 
 
 def test_db4_cmp() -> None:
-    array = np.array([5, 2, 3, 4, 5, 6, 7, 8, 10, 12, 1, 2, 3, 4, 5, 6])
+    array = np.array([5, 2, 3, 4, 5, 6, 7, 8, 10, 12, 1, 2, 3, 4, 5, 6], dtype=np.int32)
     result = wt_1d(array.copy(), db4_wavelet())
 
-    assert np.all(result == np.array([6,-2,5,0,10,0,11,0,23,3,6,1,5,0,12,1]))
-
+    assert np.all(result == np.array([6,5,10, 11, 23, 6, 5, 12, -2, 0, 0, 0, 3, 1, 0, 1]))
+    # assert np.all(result == np.array([6,-2,5,0,10,0,11,0,23,3,6,1,5,0,12,1]))
 
 
 def test_db8() -> None:
-    array = np.array([5, 2, 3, 4, 5, 6, 7, 8, 10, 12, 1, 2, 3, 4, 5, 6])
+    array = np.array([5, 2, 3, 4, 5, 6, 7, 8, 10, 12, 1, 2, 3, 4, 5, 6], dtype=np.int32)
     result = wt_1d(array.copy(), db8_wavelet())
 
-    assert np.all(result ==
-                  np.array([1,-27,3,2,2,-1,5,3,2,0,1,17,2,6,1,-2]))
+    assert np.all(result == np.array([1, 3, 2, 5, 2, 1, 2, 1, -27, 2, -1, 3, 0, 17, 6, -2]))
 
 
-# def test_db8_short() -> None:
-#     array = np.array([5,2,3,4])
-#     result = wt_1d(array.copy(), db8_wavelet())
-#
-#     assert np.all(result == np.array([1, -26, 1, -3]))
+@pytest.mark.xfail(reason="Signal too short.")
+def test_db8_short() -> None:
+    array = np.array([5,2,3,4], dtype=np.int32)
+    result = wt_1d(array.copy(), db8_wavelet())
+
+    assert np.all(result == np.array([1, -26, 1, -3]))
 
 
 def test_db8_inv() -> None:
-    array = np.array([5, 2, 3, 4, 5, 6, 7, 8, 10, 12, 1, 2, 3, 4, 5, 6])
+    array = np.array([5, 2, 3, 4, 5, 6, 7, 8, 10, 12, 1, 2, 3, 4, 5, 6], dtype=np.int32)
     first = wt_1d(array.copy(), db8_wavelet())
-    result = inv_wt_1d(first, db8_wavelet())
+    result = wt_1d_inv(first, db8_wavelet())
     assert np.all(result == array)
 
 
 def test_db8_inv_short() -> None:
-    array = np.array([5,2,3,4])
+    array = np.array([5,2,3,4], dtype=np.int32)
     transformed = wt_1d(array.copy(), db8_wavelet())
-    result = inv_wt_1d(transformed.copy(), db8_wavelet())
+    result = wt_1d_inv(transformed.copy(), db8_wavelet())
     assert(np.all(result == array))
 
+
+@pytest.mark.parametrize("wavelet", [db8_wavelet(), db4_wavelet(), db2_wavelet()])
+def test_2d_square_img_1_lvl(wavelet):
+    path = './resources/maly_rozsutec_2023_grayscale_square.jpg'
+    with Image.open(path, 'r') as img_pil:
+        img = np.array(img_pil, np.int32)
+
+        assert img.ndim == 2
+        assert img.shape[0] == img.shape[1]
+        assert 2 ** np.floor(np.log2(img.shape[0])) == img.shape[0]
+
+        transformed = wt_2d(img, wavelet)
+        assert transformed.dtype == img.dtype
+        transformed_pil = Image.fromarray(transformed)
+        transformed_pil.save("./artifacts/test_2d_haar_trans.tif")
+
+        result = wt_2d_inv(transformed, wavelet)
+        assert result.dtype == img.dtype
+        result_pil = Image.fromarray(result)
+        result_pil.save("./artifacts/test_2d_haar_inv.tif")
+
+        assert np.all(np.isclose(result, img))
+        assert np.all(result == img)
 

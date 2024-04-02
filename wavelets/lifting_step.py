@@ -34,26 +34,27 @@ class LSStep:
         n = approx.shape[0]
         c = -1 if inverse else 1
         num_c = len(self.coefficients)
+        #assert approx.dtype == diff.dtype
+        # TODO: Investigate this assert
 
-        change = 0
+        change = np.zeros_like(approx, dtype=float)
         for i in reversed(range(num_c)):
             order = self.max_order - (num_c - i - 1)
 
-            padding = abs(self.max_order) + num_c + 2
+            padding = abs(self.max_order) + num_c
             extract_from = approx if self.ls_type == LSType.PREDICT else diff
             extract_from = np.pad(extract_from, (padding, padding))
 
             extract_from = np.roll(extract_from, -1 * order)
-            extract = extract_from[padding:padding + n]
+            extract = extract_from[padding:n+padding]
 
             change += extract * self.coefficients[i]
 
+        change = np.floor((change + 0.5))*c
         if self.ls_type == LSType.PREDICT:
-            approx, diff = approx, diff + np.floor(change + 0.5).astype(
-                int) * c
+            diff = diff + change.astype(int)
         else:
-            approx, diff = approx + np.floor(change + 0.5).astype(
-                int) * c, diff
+            approx = approx + change.astype(int)
         return approx, diff
 
 
