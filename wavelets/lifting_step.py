@@ -34,7 +34,7 @@ class LSStep:
         n = approx.shape[0]
         c = -1 if inverse else 1
         num_c = len(self.coefficients)
-        #assert approx.dtype == diff.dtype
+        # assert approx.dtype == diff.dtype
         # TODO: Investigate this assert
 
         change = np.zeros_like(approx, dtype=float)

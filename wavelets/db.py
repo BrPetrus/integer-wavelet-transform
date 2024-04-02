@@ -15,10 +15,10 @@ def db2_wavelet() -> Wavelet:
 def db4_wavelet() -> Wavelet:
     return [
         LSStep(LSType.PREDICT, [-0.3223], 1),
-        LSStep(LSType.UPDATE, [-0.3001, -1.1171],0),
-        LSStep(LSType.PREDICT, [0.1176, -0.0188],2),
+        LSStep(LSType.UPDATE, [-0.3001, -1.1171], 0),
+        LSStep(LSType.PREDICT, [0.1176, -0.0188], 2),
         LSStep(LSType.UPDATE, [0.6364, 2.1318], 0),
-        LSStep(LSType.PREDICT, [-0.0248, 0.1400, -0.4691],0),
+        LSStep(LSType.PREDICT, [-0.0248, 0.1400, -0.4691], 0),
     ]
 
 
