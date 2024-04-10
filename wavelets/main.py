@@ -1,9 +1,13 @@
+from typing import TypeVar, List, Tuple
+
 import numpy as np
 from numpy.typing import NDArray
+
 from wavelets.lifting_step import Wavelet
-from typing import TypeVar
 
 T = TypeVar("T", bound=np.generic, covariant=True)
+
+Config = List[Tuple[int, int]]
 
 
 def wt_1d(signal: NDArray[T], lifting_scheme: Wavelet) -> NDArray[T]:
@@ -57,24 +61,47 @@ def wt_1d_inv(signal: NDArray[T], lifting_scheme: Wavelet) -> NDArray[T]:
     return result
 
 
-def wt_2d(image: NDArray[T], lifting_scheme: Wavelet) -> NDArray[T]:
-    rows, cols = image.shape
+def _wt_2d(img: NDArray[T], lifting_scheme: Wavelet, coords: Tuple[int, int]) \
+        -> None:
+    rows, cols = coords
 
-    result = np.zeros_like(image, dtype=image.dtype)
+    result = np.zeros_like(img, dtype=img.dtype)
     # TODO: Do this without for cycle for efficiency
     for row in range(rows):
-        result[row] = wt_1d(image[row, :].copy(), lifting_scheme)
+        result[row] = wt_1d(img[row, :].copy(), lifting_scheme)
     for col in range(cols):
         result[:, col] = wt_1d(result[:, col], lifting_scheme)
-    return result
+
+    img[:rows, :cols] = result
 
 
-def wt_2d_inv(image: NDArray[T], lifting_scheme: Wavelet) -> NDArray[T]:
+def wt_2d(image: NDArray[T], lifting_scheme: Wavelet, level: int = 1) \
+        -> Tuple[NDArray[T], Config]:
     rows, cols = image.shape
-    result = np.zeros_like(image, dtype=image.dtype)
+    out = image.copy()
+    configuration: Config = []
+    for current_level in range(level):
+        configuration.append((rows, cols))
+        _wt_2d(out[:rows, :cols], lifting_scheme, (rows, cols))
+        rows //= 2
+        cols //= 2
+    return out, configuration
 
+
+def _wt_2d_inv(image: NDArray[T], lifting_scheme: Wavelet) -> None:
+    rows, cols = image.shape
+    result = image.copy()
     for col in range(cols):
-        result[:, col] = wt_1d_inv(image[:, col], lifting_scheme)
+        result[:, col] = wt_1d_inv(result[:, col], lifting_scheme)
     for row in reversed(range(rows)):
         result[row, :] = wt_1d_inv(result[row, :].copy(), lifting_scheme)
-    return result
+    image[:rows, :cols] = result
+
+
+def wt_2d_inv(image: NDArray[T], lifting_scheme: Wavelet, config: Config) \
+        -> NDArray[T]:
+    out = image.copy()
+    for shape in reversed(config):
+        rows, cols = shape
+        _wt_2d_inv(out[:rows, :cols], lifting_scheme)
+    return out

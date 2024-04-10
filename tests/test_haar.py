@@ -54,12 +54,12 @@ def test_2d_square_img():
         assert img.shape[0] == img.shape[1]
         assert 2 ** np.floor(np.log2(img.shape[0])) == img.shape[0]
 
-        transformed = wt_2d(img, haar_wavelet())
+        transformed, config = wt_2d(img, haar_wavelet(), 4)
         assert transformed.dtype == img.dtype
         transformed_pil = Image.fromarray(transformed)
         transformed_pil.save("./artifacts/test_2d_haar_trans.tif")
 
-        result = wt_2d_inv(transformed, haar_wavelet())
+        result = wt_2d_inv(transformed, haar_wavelet(), config)
         assert result.dtype == img.dtype
         result_pil = Image.fromarray(result)
         result_pil.save("./artifacts/test_2d_haar_inv.tif")
