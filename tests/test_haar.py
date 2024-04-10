@@ -1,4 +1,6 @@
 import numpy as np
+import pytest
+
 from wavelets import wt_1d, wt_1d_inv, wt_2d_inv, wt_2d
 from wavelets.haar import haar_wavelet
 from PIL import Image
@@ -45,7 +47,8 @@ def test_2d_single_row():
         print(f"Holds for {row}/{rows}")
 
 
-def test_2d_square_img():
+@pytest.mark.parametrize("level", [1, 2, 3, 4, 5, 6])
+def test_2d_square_img(level: int):
     path = './resources/maly_rozsutec_2023_grayscale_square.jpg'
     with Image.open(path, 'r') as img_pil:
         img = np.array(img_pil, np.int32)
@@ -54,7 +57,7 @@ def test_2d_square_img():
         assert img.shape[0] == img.shape[1]
         assert 2 ** np.floor(np.log2(img.shape[0])) == img.shape[0]
 
-        transformed, config = wt_2d(img, haar_wavelet(), 4)
+        transformed, config = wt_2d(img, haar_wavelet(), level)
         assert transformed.dtype == img.dtype
         transformed_pil = Image.fromarray(transformed)
         transformed_pil.save("./artifacts/test_2d_haar_trans.tif")

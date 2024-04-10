@@ -136,7 +136,8 @@ def test_db8_inv_short() -> None:
 
 @pytest.mark.parametrize("wavelet",
                          [db8_wavelet(), db4_wavelet(), db2_wavelet()])
-def test_2d_square_img_1_lvl(wavelet):
+@pytest.mark.parametrize("level", [1, 2, 3, 4, 5, 6])
+def test_2d_square_img_1_lvl(wavelet, level):
     path = './resources/maly_rozsutec_2023_grayscale_square.jpg'
     with Image.open(path, 'r') as img_pil:
         img = np.array(img_pil, np.int32)
@@ -145,7 +146,7 @@ def test_2d_square_img_1_lvl(wavelet):
         assert img.shape[0] == img.shape[1]
         assert 2 ** np.floor(np.log2(img.shape[0])) == img.shape[0]
 
-        transformed, config = wt_2d(img, wavelet)
+        transformed, config = wt_2d(img, wavelet, level)
         assert transformed.dtype == img.dtype
         transformed_pil = Image.fromarray(transformed)
         transformed_pil.save("./artifacts/test_2d_haar_trans.tif")
