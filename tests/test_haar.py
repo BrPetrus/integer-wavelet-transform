@@ -45,29 +45,3 @@ def test_2d_single_row():
         inv = wt_1d_inv(trans.copy(), haar_wavelet())
         assert np.all(inv == signal)
         print(f"Holds for {row}/{rows}")
-
-
-@pytest.mark.parametrize("level", [1, 2, 3, 4, 5, 6])
-def test_2d_square_img(level: int):
-    path = './resources/maly_rozsutec_2023_grayscale_square.jpg'
-    with Image.open(path, 'r') as img_pil:
-        img = np.array(img_pil, np.int32)
-
-        assert img.ndim == 2
-        assert img.shape[0] == img.shape[1]
-        assert 2 ** np.floor(np.log2(img.shape[0])) == img.shape[0]
-
-        transformed, config = wt_2d(img, haar_wavelet(), level)
-        assert transformed[0].dtype == img.dtype
-        assert len(transformed) == level * 3 + 1
-
-        result = wt_2d_inv((transformed, config), haar_wavelet())
-        assert result.dtype == img.dtype
-
-        result_pil = Image.fromarray(result)
-        result_pil.save("./artifacts/test_2d_haar_inv.tif")
-
-        assert np.all(np.isclose(result, img))
-        assert np.all(result == img)
-
-

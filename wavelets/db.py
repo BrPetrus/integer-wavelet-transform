@@ -3,7 +3,6 @@ import numpy as np
 from wavelets.lifting_step import Wavelet, LSStep, LSType
 
 
-# TODO: Remove boundary condition from the wavelets
 def db2_wavelet() -> Wavelet:
     return [
         LSStep(LSType.PREDICT, [-1.7321], 0),
@@ -38,8 +37,6 @@ def db8_wavelet() -> Wavelet:
 
 if __name__ == "__main__":
     array = np.array([5, 2, 3, 4, 5, 6, 7, 8, 10, 12, 1, 2, 3, 4, 5, 6])
-    # print("Original")
-    # print(db2_ls_single(array))
 
     print("Daubechies 2 wavelet integer transform")
     print("======================================")
