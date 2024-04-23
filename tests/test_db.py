@@ -147,14 +147,11 @@ def test_2d_square_img_1_lvl(wavelet, level):
         assert 2 ** np.floor(np.log2(img.shape[0])) == img.shape[0]
 
         transformed, config = wt_2d(img, wavelet, level)
-        assert transformed.dtype == img.dtype
-        transformed_pil = Image.fromarray(transformed)
-        transformed_pil.save("./artifacts/test_2d_haar_trans.tif")
+        assert transformed[0].dtype == img.dtype
+        assert len(transformed) == level * 3 + 1
 
-        result = wt_2d_inv(transformed, wavelet, config)
-        assert result.dtype == img.dtype
-        result_pil = Image.fromarray(result)
-        result_pil.save("./artifacts/test_2d_haar_inv.tif")
+        inverse = wt_2d_inv((transformed, config), wavelet)
+        assert inverse.dtype == img.dtype
 
-        assert np.all(np.isclose(result, img))
-        assert np.all(result == img)
+        assert np.all(np.isclose(inverse, img))
+        assert np.all(inverse == img)
