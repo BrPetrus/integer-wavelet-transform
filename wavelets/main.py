@@ -19,7 +19,6 @@ def wt_1d(signal: NDArray[T], lifting_scheme: Wavelet) -> NDArray[T]:
     approx, diff = signal[::2].copy(), signal[1::2].copy()
     for step in lifting_scheme:
         approx, diff = step.evaluate(approx, diff)
-        print(approx, diff)
     result = np.zeros_like(signal)
     cols = signal.shape[-1]
     result[:cols // 2] = approx
