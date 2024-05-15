@@ -1,77 +1,39 @@
 import numpy as np
+from PIL import Image
+import os
 
-from wavelets.db import db8_wavelet, db4_wavelet, db2_wavelet
+from wavelets.haar import haar_wavelet
+from wavelets.transform import wt_2d, wt_2d_inv
+from wavelets.io import save_decomposed_img, read_decomposed_img
+
 
 def main():
-    array = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
-    print("Daubechies 2 wavelet integer transform")
-    print("======================================")
-    lsw = db2_wavelet()
-    approx, diff = array[::2], array[1::2]
-    for step in lsw:
-        approx, diff = step.evaluate(approx, diff)
-        print(f"approx = {approx}, diff = {diff}")
-    print(approx)
-    print(diff)
+    # Read an image
+    with Image.open('tests/resources/maly_rozsutec_2023_grayscale.jpg') as img:
+        data = np.array(img).astype(np.int32)
 
-    print("Inverse")
-    lsw = db2_wavelet()
-    cp_approx, cp_diff = approx, diff
-    for step in reversed(lsw):
-        approx, diff = step.evaluate(approx, diff, inverse=True)
-        print(f"approx = {approx}, diff = {diff}")
-    result = np.zeros(array.shape)
-    result[::2] = approx
-    result[1::2] = diff
-    print(result)
+    # Use Haar wavelets
+    wavelets = haar_wavelet()
 
-    print("\n\n\n\n")
+    # Decompose
+    decomposition = wt_2d(data, wavelets, level=3)
 
-    # print(db4_ls_single(array))
-    # print("--- .... ----")
+    # Save decomposition
+    path = "outputs/decomposition.tif"
+    if not os.path.exists(path):
+        os.mkdir(os.path.dirname(path))
 
-    print("Daubechies 4 wavelet integer transform")
-    print("======================================")
+    save_decomposed_img(decomposition, path)
 
-    approx, diff = array[::2], array[1::2]
-    db4 = db4_wavelet()
-    for step in db4:
-        approx, diff = step.evaluate(approx, diff)
-        print(approx, diff)
-    print(approx)
-    print(diff)
+    # Read decomposed image
+    decomposition = read_decomposed_img(path)
 
-    print("Inverse")
-    print("=====================================")
-    db4 = db4_wavelet()
-    for step in reversed(db4):
-        approx, diff = step.evaluate(approx, diff, inverse=True)
-    result = np.zeros(array.shape)
-    result[::2] = approx
-    result[1::2] = diff
-    print(result)
+    # Inverse transform
+    data_reconstructed = wt_2d_inv(decomposition, wavelets)
 
-    print("\n\n\n\n")
+    # Compare
+    np.all(data_reconstructed == data)
 
-    print("Daubechies 8 wavelet integer transform")
-    print("======================================")
-
-    approx, diff = array[::2], array[1::2]
-    db8 = db8_wavelet()
-    for step in db8:
-        approx, diff = step.evaluate(approx, diff)
-        print(approx, diff)
-    print(approx)
-    print(diff)
-
-    print("Inverse")
-    print("=====================================")
-    for step in reversed(db8):
-        approx, diff = step.evaluate(approx, diff, inverse=True)
-    result = np.zeros(array.shape)
-    result[::2] = approx
-    result[1::2] = diff
-    print(result)
 
 if __name__ == "__main__":
     main()
