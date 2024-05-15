@@ -1,9 +1,9 @@
 import numpy as np
-import pytest
 
-from wavelets import wt_1d, wt_1d_inv, wt_2d_inv, wt_2d
+from wavelets.transform import wt_1d, wt_1d_inv
 from wavelets.haar import haar_wavelet
 from PIL import Image
+
 
 def test_short():
     signal = np.array([1, 2, 6, 7], dtype=np.int32)

@@ -3,7 +3,7 @@ import json
 import numpy as np
 import tifffile
 
-from wavelets.main import Decomposition, Config
+from wavelets.misc import Decomposition
 
 
 def save_decomposed_img(decomposition: Decomposition, path: str) -> None:

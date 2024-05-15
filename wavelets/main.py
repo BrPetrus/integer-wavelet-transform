@@ -1,159 +1,75 @@
-from typing import TypeVar, List, Tuple
-
+from PIL import Image
+from dataclasses import dataclass
+import argparse
 import numpy as np
-from numpy.typing import NDArray
 
 from wavelets.lifting_step import Wavelet
-
-T = TypeVar("T", bound=np.generic, covariant=True)
-
-Config = List[Tuple[int, int]]
-
-
-def wt_1d(signal: NDArray[T], lifting_scheme: Wavelet) -> NDArray[T]:
-    if not np.issubdtype(signal.dtype, np.integer):
-        raise RuntimeWarning("Input signal does not use integer type!")
-
-    orig_type = signal.dtype
-    signal = signal.astype(int)
-    approx, diff = signal[::2].copy(), signal[1::2].copy()
-    for step in lifting_scheme:
-        approx, diff = step.evaluate(approx, diff)
-    result = np.zeros_like(signal)
-    cols = signal.shape[-1]
-    result[:cols // 2] = approx
-    result[cols // 2:] = diff
-
-    if result.max() >= np.iinfo(orig_type).max or result.min() <= np.iinfo(
-            orig_type).min:
-        raise RuntimeError(
-            "Original type of the image cannot hold the transformed signal!")
-
-    result = result.astype(orig_type)
-
-    assert result.dtype == orig_type
-    assert np.issubdtype(result.dtype, np.integer)
-    return result
+from wavelets.db import db4_wavelet, db8_wavelet, db2_wavelet
+from wavelets.haar import haar_wavelet
+from wavelets.io import save_decomposed_img, read_decomposed_img
+from wavelets.transform import wt_2d, wt_2d_inv
 
 
-def wt_1d_inv(signal: NDArray[T], lifting_scheme: Wavelet) -> NDArray[T]:
-    if not np.issubdtype(signal.dtype, np.integer):
-        raise RuntimeWarning("Input signal does not use a numpy integer type!")
-    orig_type = signal.dtype
-    signal = signal.astype(int)
-    cols = signal.shape[-1]
-    approx, diff = signal[:cols // 2].copy(), signal[cols // 2:].copy()
-    for step in reversed(lifting_scheme):
-        approx, diff = step.evaluate(approx, diff, inverse=True)
-    result = np.zeros_like(signal)
-    result[::2] = approx
-    result[1::2] = diff
-
-    if result.max() >= np.iinfo(orig_type).max or result.min() <= np.iinfo(
-            orig_type).min:
-        raise RuntimeError(
-            "Original type of the image cannot hold the transformed signal!")
-
-    result = result.astype(orig_type)
-    assert result.dtype == orig_type
-    assert np.issubdtype(result.dtype, np.integer)
-    return result
+@dataclass(frozen=True)
+class ParsedConfig:
+    """Class for storing parsed configuration."""
+    wavelet: Wavelet
+    path_in: str
+    path_out: str
+    level: int
+    operation_decompose: bool
 
 
-def _wt_2d(img: NDArray[T], lifting_scheme: Wavelet, coords: Tuple[int, int]) \
-        -> NDArray[T]:
-    rows, cols = coords
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description='Integer wavelet decomposition')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-d', '--decomposition', action='store_true', help="Decompose the image.")
+    group.add_argument('-r', '--reconstruction', action='store_true', help="Reconstruct the image.")
 
-    result = np.zeros(coords, dtype=img.dtype)
-    # TODO: Do this without for cycle for efficiency
-    for row in range(rows):
-        result[row] = wt_1d(img[row, :].copy(), lifting_scheme)
-    for col in range(cols):
-        result[:, col] = wt_1d(result[:, col], lifting_scheme)
+    parser.add_argument('-i', '--input', required=True,
+                        help='Path to the mandatory input file')
+    parser.add_argument('-o', '--output', help='Path to the output file')
+    parser.add_argument('-w', '--wavelet',
+                        choices=[
+                            'Haar', 'Daubechie2', 'Daubechie4', 'Daubechie8',
+                        ],
+                        required=True, help='Wavelet type', default='Haar')
+    parser.add_argument('-l', '--level', type=int, required=True,
+                        help='Level of decomposition (positive integer)')
+    args = parser.parse_args()
 
-    return result
+    if args.level <= 0:
+        parser.error("Level of decomposition must be a positive integer.")
 
+    match args.wavelet:
+        case 'Haar':
+            wavelet = haar_wavelet()
+        case 'Daubechie2':
+            wavelet = db2_wavelet()
+        case 'Daubechie4':
+            wavelet = db4_wavelet()
+        case 'Daubechie8':
+            wavelet = db8_wavelet()
+        case _:
+            # Note: This should not happen, since argparse checks validity of wavelets
+            raise RuntimeError("Unknown wavelet")
+    configuration = ParsedConfig(
+        wavelet=wavelet,
+        path_in=args.input,
+        path_out=args.output,
+        level=args.level,
+        operation_decompose=True if args.decomposition else False
+    )
 
-Decomposition = Tuple[List[NDArray[T]], Config]
+    if ParsedConfig.operation_decompose:
+        with Image.open(configuration.path_in, 'r') as img_pil:
+            image = np.array(img_pil).astype(int)
+        decomposition = wt_2d(image, configuration.wavelet, configuration.level)
+        save_decomposed_img(decomposition, configuration.path_out)
+    else:
+        decomposition = read_decomposed_img(configuration.path_in)
+        image_numpy = wt_2d_inv(decomposition, configuration.wavelet)
+        image = Image.fromarray(image_numpy)
+        image.save(configuration.path_out)
 
-def wt_2d(image: NDArray[T], lifting_scheme: Wavelet, level: int = 1) -> Decomposition:
-    configurations: Config = []
-    coefficients: List[NDArray[T]] = []
-
-    rows, cols = image.shape
-    approx = image
-    for curr_lvl in range(level):
-        configurations.append((rows, cols))
-
-        # Pad the image
-        pad_rows, pad_cols = 0, 0
-        if rows % 2 == 1:
-            pad_rows = 1
-            rows += 1
-        if cols % 2 == 1:
-            pad_cols = 1
-            cols += 1
-        image = np.pad(image, ((0, pad_rows), (0, pad_cols)))
-
-        # Transform
-        image = _wt_2d(image, lifting_scheme, (rows, cols))
-
-        # Split
-        approx = image[:rows // 2, :cols // 2]
-        coefficients.append(image[rows // 2:, :cols // 2])  # Diff. vert.
-        coefficients.append(image[rows // 2:, cols // 2:])  # Diff. diag.
-        coefficients.append(image[:rows // 2, cols // 2:])  # Diff. hor.
-
-        # TODO: sanity check
-        image = approx.copy()
-
-        rows //= 2
-        cols //= 2
-
-    coefficients.append(approx)
-
-    return coefficients, configurations
-
-
-def _wt_2d_inv(image: NDArray[T], lifting_scheme: Wavelet) -> NDArray[T]:
-    rows, cols = image.shape
-    result = image.copy()
-    for col in range(cols):
-        result[:, col] = wt_1d_inv(result[:, col], lifting_scheme)
-    for row in reversed(range(rows)):
-        result[row, :] = wt_1d_inv(result[row, :].copy(), lifting_scheme)
-    return result
-
-
-def wt_2d_inv(decomposition: Decomposition, lifting_scheme: Wavelet) -> NDArray[T]:
-    coefficients, config = decomposition
-
-    approx = coefficients.pop()
-    for shape in reversed(config):
-        target_rows, target_cols = shape
-
-        # Get coefficients
-        diff_h = coefficients.pop()
-        diff_diag = coefficients.pop()
-        diff_vert = coefficients.pop()
-
-        # Construct image
-        new_rows, new_cols = approx.shape[0] * 2, approx.shape[1] * 2
-        img = np.zeros((new_rows, new_cols), dtype=approx.dtype)
-        img[:new_rows // 2, :new_cols // 2] = approx
-        img[:new_rows // 2, new_cols // 2:] = diff_h
-        img[new_rows // 2:, new_cols // 2:] = diff_diag
-        img[new_rows // 2:, :new_cols // 2] = diff_vert
-
-        # Inverse transform
-        img = _wt_2d_inv(img, lifting_scheme)
-
-        # Remove padding
-        if new_rows != target_rows:
-            img = img[:-1, :]
-        if new_cols != target_cols:
-            img = img[:, :-1]
-
-        approx = img
-
-    return approx
