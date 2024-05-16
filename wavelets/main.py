@@ -20,7 +20,7 @@ class ParsedConfig:
     operation_decompose: bool
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description='Integer wavelet decomposition')
     group = parser.add_mutually_exclusive_group(required=True)
@@ -73,3 +73,6 @@ if __name__ == "__main__":
         image = Image.fromarray(image_numpy)
         image.save(configuration.path_out)
 
+
+if __name__ == "__main__":
+    main()

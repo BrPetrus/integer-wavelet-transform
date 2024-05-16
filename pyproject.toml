@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "integer-wavelets"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["Bruno Petrus <brunoxpetrus@gmail.com>"]
 readme = "README.md"
@@ -15,6 +15,9 @@ setuptools = "^69.2"
 pytest = "^8.1.1"
 tifffile = "^2024.4.18"
 pillow = "^10.2.0"
+
+[tool.poetry.scripts]
+wavelets="wavelets.main:main"
 
 [build-system]
 required = ["poetry-core"]

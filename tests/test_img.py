@@ -1,10 +1,10 @@
 import pytest
 from PIL import Image
 import numpy as np
-from wavelets import wt_2d, wt_2d_inv
 from wavelets.haar import haar_wavelet
 from wavelets.db import db4_wavelet, db8_wavelet, db2_wavelet
 from wavelets.io import save_decomposed_img, read_decomposed_img
+from wavelets.transform import wt_2d, wt_2d_inv
 import os
 
 @pytest.mark.parametrize("wavelet",
