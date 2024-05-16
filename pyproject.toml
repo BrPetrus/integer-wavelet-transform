@@ -20,5 +20,5 @@ pillow = "^10.2.0"
 wavelets="wavelets.main:main"
 
 [build-system]
-required = ["poetry-core"]
+required = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

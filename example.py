@@ -3,6 +3,7 @@ from PIL import Image
 import os
 
 from wavelets.haar import haar_wavelet
+from wavelets.db import db8_wavelet
 from wavelets.transform import wt_2d, wt_2d_inv
 from wavelets.io import save_decomposed_img, read_decomposed_img
 
@@ -14,6 +15,9 @@ def main():
 
     # Use Haar wavelets
     wavelets = haar_wavelet()
+
+    # Use Db8 wavelet
+    wavelet_db8 = db8_wavelet()
 
     # Decompose
     decomposition = wt_2d(data, wavelets, level=3)
