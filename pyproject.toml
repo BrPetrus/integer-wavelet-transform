@@ -1,13 +1,21 @@
-[project]
+[tool.poetry]
 name = "integer-wavelets"
-version = "0.0.1"
-dependencies = [
-    "numpy~=1.26",
-    "matplotlib~=3.8.3",
-    "scipy~=1.12",
-    "setuptools~=69.2",
-    "numpy~=1.26.0",
-    "pytest~=8.1.1",
-    "tifffile~=2024.4.18",
-    "pillow~=10.2.0",
-]
+version = "0.1.0"
+description = ""
+authors = ["Bruno Petrus <brunoxpetrus@gmail.com>"]
+readme = "README.md"
+packages = [{include = "wavelets"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^1.26"
+matplotlib = "^3.8.3"
+scipy = "^1.13"
+setuptools = "^69.2"
+pytest = "^8.1.1"
+tifffile = "^2024.4.18"
+pillow = "^10.2.0"
+
+[build-system]
+required = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
