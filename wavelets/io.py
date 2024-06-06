@@ -45,7 +45,8 @@ def save_decomposed_img(decomposition: Decomposition, path: str) -> None:
             tif_writer.write(
                 data=img,
                 metadata=metadata,
-                photometric=tifffile.tifffile.PHOTOMETRIC.RGB  # TODO: change this
+                # NOTE: Each channel stores one direction.
+                photometric=tifffile.tifffile.PHOTOMETRIC.RGB
             )
 
 
@@ -88,7 +89,7 @@ def read_decomposed_img(path: str) -> Decomposition:
 
 if __name__ == "__main__":
     from wavelets.haar import haar_wavelet
-    from wavelets import wt_2d, wt_2d_inv
+    from wavelets.transform import wt_2d, wt_2d_inv
 
     with Image.open('../tests/resources/maly_rozsutec_2023_grayscale.jpg') as img:
         img = np.array(img).astype(np.int32)

@@ -80,7 +80,6 @@ def wt_2d(image: NDArray[T], lifting_scheme: Wavelet, level: int = 1) -> Decompo
 
     rows, cols = image.shape
     approx = image
-    # TODO: Limit the value of the var. level.
     for curr_lvl in range(level):
         if rows == 1 and cols == 1:
             raise TransformError(f"Cannot decompose the image more than {curr_lvl} times.")
@@ -107,7 +106,6 @@ def wt_2d(image: NDArray[T], lifting_scheme: Wavelet, level: int = 1) -> Decompo
         coefficients.append(image[rows // 2:, cols // 2:])  # Diff. diag.
         coefficients.append(image[:rows // 2, cols // 2:])  # Diff. hor.
 
-        # TODO: sanity check
         image = approx.copy()
 
         rows //= 2
