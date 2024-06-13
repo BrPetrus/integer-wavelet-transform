@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "integer-wavelets"
-version = "0.2.0"
+version = "0.2.2"
 description = ""
 authors = ["Bruno Petrus <brunoxpetrus@gmail.com>"]
 readme = "README.md"
