@@ -24,7 +24,7 @@ def main():
 
     # Save decomposition
     path = "outputs/decomposition.tif"
-    if not os.path.exists(path):
+    if not os.path.exists("outputs"):
         os.mkdir(os.path.dirname(path))
 
     save_decomposed_img(decomposition, path)

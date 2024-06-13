@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PIL import Image
 from dataclasses import dataclass
 import argparse
@@ -57,17 +59,27 @@ def main():
     configuration = ParsedConfig(
         wavelet=wavelet,
         path_in=args.input,
-        path_out=args.output,
+        path_out=args.output if args.output else str(Path("./output.tif").resolve()),
         level=args.level,
         operation_decompose=True if args.decomposition else False
     )
 
-    if ParsedConfig.operation_decompose:
+    print(f"Saving the results to: '{configuration.path_out}'")
+
+    if configuration.operation_decompose:
         with Image.open(configuration.path_in, 'r') as img_pil:
-            image = np.array(img_pil).astype(int)
+            # NOTE: This is done to weird undocumented issues with the TIFF
+            # format. I used to use `int` data type, but that would lead to
+            # undefined behaviour, as the TiffFile library would create corrupt
+            # images.
+            print("Converting image to signed 32bit integer...")
+            image = np.array(img_pil).astype(np.int32)
         decomposition = wt_2d(image, configuration.wavelet, configuration.level)
         save_decomposed_img(decomposition, configuration.path_out)
     else:
+        if not configuration.path_out.endswith('.tif'):
+            raise RuntimeError("Output file must be a tif")
+
         decomposition = read_decomposed_img(configuration.path_in)
         image_numpy = wt_2d_inv(decomposition, configuration.wavelet)
         image = Image.fromarray(image_numpy)
