@@ -66,6 +66,7 @@ def test_saving_and_loading(path_to_image, level, wavelet):
     save_decomposed_img(decomposition, path)
     decomposition_found = read_decomposed_img(path)
     inv_img = wt_2d_inv(decomposition_found, wavelet)
+    assert inv_img.dtype == image.dtype
     assert np.all(np.isclose(inv_img, image))
     assert np.all(image == inv_img)
 
