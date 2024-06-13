@@ -3,6 +3,8 @@ Implementation of integer wavelet transform using lifting scheme.
 
 ## Usage
 
+The tool is able to decompose grayscale images of any size.
+
 ### Using CLI
 After installing the package, a new CLI is exposed to your shell:
 
@@ -38,7 +40,3 @@ Now you can build the wheel files using:
 This will build the project under the `dist` folder. Now you can install the package by running:
 
 `> pip install dist/*`
-
-## Generated files
-
-## Specifying custom wavelets
