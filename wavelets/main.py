@@ -8,6 +8,7 @@ import numpy as np
 from wavelets.lifting_step import Wavelet
 from wavelets.db import db4_wavelet, db8_wavelet, db2_wavelet
 from wavelets.haar import haar_wavelet
+from wavelets.symlets import symlets2, symlets4, symlets8
 from wavelets.io import save_decomposed_img, read_decomposed_img
 from wavelets.transform import wt_2d, wt_2d_inv
 
@@ -35,6 +36,7 @@ def main():
     parser.add_argument('-w', '--wavelet',
                         choices=[
                             'Haar', 'Daubechie2', 'Daubechie4', 'Daubechie8',
+                            'Symlets2', 'Symlets4', 'Symlets8',
                         ],
                         required=True, help='Wavelet type', default='Haar')
     parser.add_argument('-l', '--level', type=int, required=True,
@@ -53,6 +55,12 @@ def main():
             wavelet = db4_wavelet()
         case 'Daubechie8':
             wavelet = db8_wavelet()
+        case 'Symlets2':
+            wavelet = symlets2()
+        case 'Symlets4':
+            wavelet = symlets4()
+        case 'Symlets8':
+            wavelet = symlets8()
         case _:
             # Note: This should not happen, since argparse checks validity of wavelets
             raise RuntimeError("Unknown wavelet")

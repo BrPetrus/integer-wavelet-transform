@@ -3,6 +3,7 @@ from PIL import Image
 import numpy as np
 from wavelets.haar import haar_wavelet
 from wavelets.db import db4_wavelet, db8_wavelet, db2_wavelet
+from wavelets.symlets import symlets2, symlets4, symlets8
 from wavelets.io import save_decomposed_img, read_decomposed_img
 from wavelets.transform import wt_2d, wt_2d_inv
 import os
@@ -32,7 +33,8 @@ def test_2d_square_img(wavelet, level):
 
 @pytest.mark.parametrize("wavelet",
                          [db8_wavelet(), db4_wavelet(), db2_wavelet(),
-                          haar_wavelet()])
+                          haar_wavelet(),
+                          symlets2(), symlets4(), symlets8()])
 @pytest.mark.parametrize("level", [1, 2, 3, 4])
 def test_2d_rectangular_img(wavelet, level):
     path = './resources/maly_rozsutec_2023_grayscale.jpg'
@@ -56,7 +58,7 @@ def test_2d_rectangular_img(wavelet, level):
      "./resources/maly_rozsutec_2023_grayscale_square.jpg"
 ])
 @pytest.mark.parametrize("level", [1, 3])
-@pytest.mark.parametrize("wavelet", [db8_wavelet(), haar_wavelet()])
+@pytest.mark.parametrize("wavelet", [db8_wavelet(), haar_wavelet(), symlets8()])
 def test_saving_and_loading(path_to_image, level, wavelet):
     with Image.open(path_to_image, 'r') as img_pil:
         image = np.array(img_pil).astype(np.int32)

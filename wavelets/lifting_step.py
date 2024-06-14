@@ -39,6 +39,8 @@ class LSStep:
         for i in reversed(range(num_c)):
             order = self.max_order - (num_c - i - 1)
 
+            # TODO: Is this correct? What if the max_order is large, but the
+            #    next coefficient is not immediately following?
             padding = abs(self.max_order) + num_c
             extract_from = approx if self.ls_type == LSType.PREDICT else diff
             extract_from = np.pad(extract_from, (padding, padding))
