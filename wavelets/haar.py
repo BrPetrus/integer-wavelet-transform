@@ -1,4 +1,4 @@
-from wavelets.lifting_step import Wavelet, LSStep, LSType, LSBoundaryCondition
+from wavelets.lifting_step import Wavelet, LSStep, LSType
 
 
 def haar_wavelet() -> Wavelet:
@@ -6,4 +6,3 @@ def haar_wavelet() -> Wavelet:
         LSStep(LSType.PREDICT, [-1], 0),
         LSStep(LSType.UPDATE, [0.5], 0)
     ]
-

@@ -4,7 +4,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 from wavelets.lifting_step import Wavelet
-from wavelets.misc import TransformError, Decomposition
+from wavelets.misc import TransformError, Decomposition, Config
 
 T = TypeVar("T", bound=np.generic, covariant=True)
 
@@ -73,8 +73,8 @@ def _wt_2d(img: NDArray[T], lifting_scheme: Wavelet, coords: Tuple[int, int]) \
     return result
 
 
-
-def wt_2d(image: NDArray[T], lifting_scheme: Wavelet, level: int = 1) -> Decomposition:
+def wt_2d(image: NDArray[T], lifting_scheme: Wavelet,
+          level: int = 1) -> Decomposition:
     configurations: Config = []
     coefficients: List[NDArray[T]] = []
 
@@ -82,7 +82,8 @@ def wt_2d(image: NDArray[T], lifting_scheme: Wavelet, level: int = 1) -> Decompo
     approx = image
     for curr_lvl in range(level):
         if rows == 1 and cols == 1:
-            raise TransformError(f"Cannot decompose the image more than {curr_lvl} times.")
+            raise TransformError(
+                f"Cannot decompose the image more than {curr_lvl} times.")
 
         configurations.append((rows, cols))
 
@@ -101,7 +102,8 @@ def wt_2d(image: NDArray[T], lifting_scheme: Wavelet, level: int = 1) -> Decompo
 
         # Split
         approx = image[:rows // 2, :cols // 2]
-        # TODO: Write into docs, which of the RGB channels corres. to which difference.
+        # TODO: Write into docs, which of the RGB channels corres.
+        #  to which difference.
         coefficients.append(image[rows // 2:, :cols // 2])  # Diff. vert.
         coefficients.append(image[rows // 2:, cols // 2:])  # Diff. diag.
         coefficients.append(image[:rows // 2, cols // 2:])  # Diff. hor.
@@ -126,7 +128,8 @@ def _wt_2d_inv(image: NDArray[T], lifting_scheme: Wavelet) -> NDArray[T]:
     return result
 
 
-def wt_2d_inv(decomposition: Decomposition, lifting_scheme: Wavelet) -> NDArray[T]:
+def wt_2d_inv(decomposition: Decomposition, lifting_scheme: Wavelet) -> \
+    NDArray[T]:
     coefficients, config = decomposition
 
     approx = coefficients.pop()

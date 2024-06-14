@@ -1,4 +1,5 @@
 from typing import List, Tuple, TypeVar
+
 import numpy as np
 from numpy.typing import NDArray
 

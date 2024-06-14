@@ -1,7 +1,8 @@
-from PIL import Image
 import json
+
 import numpy as np
 import tifffile
+from PIL import Image
 
 from wavelets.misc import Decomposition
 
@@ -9,7 +10,8 @@ from wavelets.misc import Decomposition
 def save_decomposed_img(decomposition: Decomposition, path: str) -> None:
     coefficients, config = decomposition
     config = config.copy()
-    coefficients = coefficients.copy()  # TODO: replace with non-inplace operations
+    coefficients = coefficients.copy()
+    # TODO: replace with non-inplace operations
 
     full_r, full_c = coefficients[0].shape  # Final shape
     full_r *= 2
@@ -33,7 +35,8 @@ def save_decomposed_img(decomposition: Decomposition, path: str) -> None:
             diff_diag = coefficients.pop()
             diff_vert = coefficients.pop()
 
-            img = np.zeros((diff_h.shape[0], diff_h.shape[1], 3), dtype=diff_h.dtype)
+            img = np.zeros((diff_h.shape[0], diff_h.shape[1], 3),
+                           dtype=diff_h.dtype)
             img[:, :, 0] = diff_h
             img[:, :, 1] = diff_diag
             img[:, :, 2] = diff_vert
@@ -63,8 +66,10 @@ def read_decomposed_img(path: str) -> Decomposition:
 
         if approx.shape[0] != metadata['original_row_count'] \
                 or approx.shape[1] != metadata['original_column_count']:
-            raise RuntimeError(f"Image shape mismatch for the approximation coefficients. Metadata: {metadata}. "
-                               f"Got {approx.shape}")
+            raise RuntimeError(
+                f"Image shape mismatch for the approximation coefficients. "
+                f"Metadata: {metadata}. "
+                f"Got {approx.shape}")
         datatype = approx.dtype
         coefficients.append(approx)
 
@@ -72,9 +77,12 @@ def read_decomposed_img(path: str) -> Decomposition:
         for i, page in enumerate(tif.pages[1:]):
             data = page.asarray()
             if datatype != data.dtype:
-                raise RuntimeError(f"Image datatype mismatch. Page #{i} has {datatype} but expected {data.dtype}.")
+                raise RuntimeError(
+                    f"Image datatype mismatch."
+                    f"Page #{i} has {datatype} but expected {data.dtype}.")
             metadata = json.loads(page.description)
-            orig_rows, orig_cols = metadata['original_row_count'], metadata['original_column_count']
+            orig_rows, orig_cols = metadata['original_row_count'], \
+                metadata['original_column_count']
             orig_shape = (orig_rows, orig_cols)
             config.append(orig_shape)
 
@@ -91,7 +99,8 @@ if __name__ == "__main__":
     from wavelets.haar import haar_wavelet
     from wavelets.transform import wt_2d, wt_2d_inv
 
-    with Image.open('../tests/resources/maly_rozsutec_2023_grayscale.jpg') as img:
+    with Image.open(
+            '../tests/resources/maly_rozsutec_2023_grayscale.jpg') as img:
         img = np.array(img).astype(np.int32)
 
         decomposition = wt_2d(img, haar_wavelet(), 3)

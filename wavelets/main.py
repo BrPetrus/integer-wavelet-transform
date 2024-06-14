@@ -1,16 +1,16 @@
+import argparse
+from dataclasses import dataclass
 from pathlib import Path
 
-from PIL import Image
-from dataclasses import dataclass
-import argparse
 import numpy as np
+from PIL import Image
 
-from wavelets.lifting_step import Wavelet
+from wavelets.coiflet import coiflet1, coiflet2
 from wavelets.db import db4_wavelet, db8_wavelet, db2_wavelet
 from wavelets.haar import haar_wavelet
-from wavelets.coiflet import coiflet1, coiflet2
-from wavelets.symlets import symlets2, symlets4, symlets8
 from wavelets.io import save_decomposed_img, read_decomposed_img
+from wavelets.lifting_step import Wavelet
+from wavelets.symlets import symlets2, symlets4, symlets8
 from wavelets.transform import wt_2d, wt_2d_inv
 
 
@@ -28,8 +28,10 @@ def main():
     parser = argparse.ArgumentParser(
         description='Integer wavelet decomposition')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-d', '--decomposition', action='store_true', help="Decompose the image.")
-    group.add_argument('-r', '--reconstruction', action='store_true', help="Reconstruct the image.")
+    group.add_argument('-d', '--decomposition', action='store_true',
+                       help="Decompose the image.")
+    group.add_argument('-r', '--reconstruction', action='store_true',
+                       help="Reconstruct the image.")
 
     parser.add_argument('-i', '--input', required=True,
                         help='Path to the mandatory input file')
@@ -69,12 +71,14 @@ def main():
         case 'Coiflet2':
             wavelet = coiflet2()
         case _:
-            # Note: This should not happen, since argparse checks validity of wavelets
+            # Note: This should not happen, since argparse checks validity of
+            # wavelets
             raise RuntimeError("Unknown wavelet")
     configuration = ParsedConfig(
         wavelet=wavelet,
         path_in=args.input,
-        path_out=args.output if args.output else str(Path("./output.tif").resolve()),
+        path_out=args.output if args.output else str(
+            Path("./output.tif").resolve()),
         level=args.level,
         operation_decompose=True if args.decomposition else False
     )
@@ -89,7 +93,8 @@ def main():
             # images.
             print("Converting image to signed 32bit integer...")
             image = np.array(img_pil).astype(np.int32)
-        decomposition = wt_2d(image, configuration.wavelet, configuration.level)
+        decomposition = wt_2d(image, configuration.wavelet,
+                              configuration.level)
         save_decomposed_img(decomposition, configuration.path_out)
     else:
         if not configuration.path_out.endswith('.tif'):

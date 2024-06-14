@@ -46,11 +46,11 @@ class LSStep:
             extract_from = np.pad(extract_from, (padding, padding))
 
             extract_from = np.roll(extract_from, -1 * order)
-            extract = extract_from[padding:n+padding]
+            extract = extract_from[padding:n + padding]
 
             change += extract * self.coefficients[i]
 
-        change = np.floor((change + 0.5))*c
+        change = np.floor((change + 0.5)) * c
         if self.ls_type == LSType.PREDICT:
             diff = diff + change.astype(int)
         else:

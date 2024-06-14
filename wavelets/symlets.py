@@ -1,5 +1,3 @@
-import numpy as np
-
 from wavelets.lifting_step import Wavelet, LSStep, LSType
 
 
@@ -33,5 +31,3 @@ def symlets8() -> Wavelet:
         LSStep(LSType.UPDATE, [0.7492, -2.1581], 7),
         LSStep(LSType.PREDICT, [0.3531], -7),
     ]
-
-
